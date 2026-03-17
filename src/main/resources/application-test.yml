@@ -1,8 +1,11 @@
 spring:
   data:
     mongodb:
-      database: diaryAppTest
-      port: 0
-  mongodb:
-    embedded:
-      version: 4.0.2
+      uri: mongodb+srv://shubhankarpotnisofficial_db_user:0cDThRdpXy3LH0sY@cluster001.yzm9yz3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster001
+      database: Testing
+      auto-index-creation: true
+
+server:
+  port: ${PORT:8085}
+  servlet:
+    context-path: /diary

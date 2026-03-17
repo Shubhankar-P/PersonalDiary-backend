@@ -4,16 +4,13 @@ import net.shubhankarpotnis.diaryApp.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
-@DataMongoTest
 @ActiveProfiles("test")
+@SpringBootTest
 class UserRepositoryTest {
 
     @Autowired
@@ -21,24 +18,24 @@ class UserRepositoryTest {
 
     @BeforeEach
     public void setup() {
+        // Clear test database before each test
         userRepository.deleteAll();
 
-        User testUser = new User("testUser", "testPass");
+        User testUser = new User("testUserEEEE", "testPassEEEE");
         userRepository.save(testUser);
     }
 
     @Test
     public void findByUserName_WhenUserExists_ReturnsUser() {
-        User user = userRepository.findByUserName("testUser");
+        User user = userRepository.findByUserName("testUserEEEE");
         assertNotNull(user);
-        assertEquals("testUser", user.getUserName());
+        assertEquals("testUserEEEE", user.getUserName());
     }
 
     @Test
     void deleteByUserName_WhenCalled_RemovesUser() {
-        userRepository.deleteByUserName("testUser");
-        User user = userRepository.findByUserName("testUser");
+        userRepository.deleteByUserName("testUserEEEE");
+        User user = userRepository.findByUserName("testUserEEEE");
         assertNull(user);
     }
 }
-

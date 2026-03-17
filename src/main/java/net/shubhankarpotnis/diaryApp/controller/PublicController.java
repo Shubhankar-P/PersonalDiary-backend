@@ -43,6 +43,7 @@ public class PublicController {
     public void signup(@RequestBody User user){
         userService.saveNewUser(user);
     }
+
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user){
         try{
