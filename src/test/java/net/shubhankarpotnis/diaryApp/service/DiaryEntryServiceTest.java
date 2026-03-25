@@ -38,8 +38,7 @@ class DiaryEntryServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUser = new User("testUser", "plainPassword");
-
+        testUser = new User();
         testDiaryEntry = new DiaryEntry();
         testDiaryEntry.setTitle("My test Diary");
         testDiaryEntry.setContent("Some content");
@@ -98,8 +97,18 @@ class DiaryEntryServiceTest {
         verify(userService, never()).saveUser(any(User.class));
     }
 
+    @Test  // A. Happy Path: Direct save (used by update endpoint)
+    void saveEntry_WhenCalledWithJustEntry_ShouldDelegateDirectlyToRepository() {
+        // Arrange
+        when(diaryEntryRepository.save(testDiaryEntry)).thenReturn(testDiaryEntry);
 
+        // Act
+        diaryEntryService.saveEntry(testDiaryEntry);
 
+        // Assert — repository.save must be called; no user lookup should happen
+        verify(diaryEntryRepository, times(1)).save(testDiaryEntry);
+        verify(userService, never()).findByUserName(any());
+    }
 
     @Test  // A. Happy Path: findById returns entry
     void findById_WhenEntryExists_ShouldReturnDiaryEntry() {

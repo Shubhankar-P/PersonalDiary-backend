@@ -31,7 +31,9 @@ class UserDetailsServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        testUser = new User("testUser", "password");
+        testUser = new User();
+        testUser.setUserName("testUser");
+        testUser.setPassword("password");
         testUser.setRoles(Arrays.asList("USER", "ADMIN"));
     }
 

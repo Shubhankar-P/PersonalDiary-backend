@@ -31,14 +31,22 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUser = new User("testUser","plainPassword");
+      //  testUser = new User("testUser","plainPassword");
+        testUser = new User();
+        testUser.setUserName("testUser");
+        testUser.setPassword("plainPassword");
         ObjectId testId = new ObjectId();
         testUser.setId(testId);
 
-        mockUsers = Arrays.asList(
-                new User( "user1", "pass1"),
-                new User("user2", "pass2")
-        );
+        User user1 = new User();
+        user1.setUserName("user1");
+        user1.setPassword("pass1");
+
+        User user2 = new User();
+        user2.setUserName("user2");
+        user2.setPassword("pass2");
+
+        mockUsers = Arrays.asList(user1, user2);
     }
 
 

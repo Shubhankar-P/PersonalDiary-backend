@@ -21,7 +21,9 @@ class UserRepositoryTest {
         // Clear test database before each test
         userRepository.deleteAll();
 
-        User testUser = new User("testUserEEEE", "testPassEEEE");
+        User testUser = new User();
+        testUser.setUserName("testUserEEEE");
+        testUser.setPassword("testPassEEEE");
         userRepository.save(testUser);
     }
 

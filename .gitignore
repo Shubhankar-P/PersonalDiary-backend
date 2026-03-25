@@ -36,4 +36,3 @@ build/
 ### VS Code ###
 .vscode/
 
-/src/test/java/net/shubhankarpotnis/diaryApp/controller/
