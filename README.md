@@ -1,7 +1,7 @@
 # 📖 Personal Diary Application  
 
-![Build](https://img.shields.io/badge/build-passing-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-47%25-blue)
+![Build](https://github.com/Shubhankar-P/PersonalDiary-backend/actions/workflows/ci-cd.yml/badge.svg)
+![Coverage](https://img.shields.io/badge/coverage-96%25-blue)
 ![Quality Gate](https://img.shields.io/badge/sonarqube-passed-success)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 ![Spring Boot](https://img.shields.io/badge/SpringBoot-2.7.16-green?logo=springboot)
@@ -103,8 +103,8 @@ Authenticated users can manage their diary entries.
 ### Installation  
 ```bash
 # Clone repository
-git clone https://github.com/your-username/diary-app.git
-cd diary-app
+git clone https://github.com/Shubhankar-P/PersonalDiary-backend.git
+cd PersonalDiary-backend
 
 # Build project
 mvn clean install
