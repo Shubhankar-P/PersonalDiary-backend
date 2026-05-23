@@ -1,7 +1,7 @@
 # 📖 Personal Diary Application  
 
 ![Build](https://github.com/Shubhankar-P/PersonalDiary-backend/actions/workflows/ci-cd.yml/badge.svg)
-![Coverage](https://img.shields.io/badge/coverage-96%25-blue)
+[![codecov](https://codecov.io/github/Shubhankar-P/PersonalDiary-backend/graph/badge.svg?token=7TEOI73BG7)](https://codecov.io/github/Shubhankar-P/PersonalDiary-backend)
 ![Quality Gate](https://img.shields.io/badge/sonarqube-passed-success)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 ![Spring Boot](https://img.shields.io/badge/SpringBoot-2.7.16-green?logo=springboot)
