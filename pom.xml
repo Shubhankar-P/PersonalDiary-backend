@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.16</version>
+		<version>3.5.16</version>
 		<relativePath/>
 	</parent>
 	<groupId>net.shubhankarpotnis</groupId>
@@ -14,7 +14,7 @@
 	<name>Diary App</name>
 	<description>E2EE Diary App</description>
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 
@@ -99,7 +99,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.8</version>
+				<version>0.8.12</version>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>
