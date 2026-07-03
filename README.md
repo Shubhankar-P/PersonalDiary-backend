@@ -4,9 +4,9 @@
 [![codecov](https://codecov.io/github/Shubhankar-P/PersonalDiary-backend/graph/badge.svg?token=7TEOI73BG7)](https://codecov.io/github/Shubhankar-P/PersonalDiary-backend)
 ![Quality Gate](https://img.shields.io/badge/sonarqube-passed-success)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
-![Spring Boot](https://img.shields.io/badge/SpringBoot-2.7.16-green?logo=springboot)
+![Spring Boot](https://img.shields.io/badge/SpringBoot-4.1.0-green?logo=springboot)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-success?logo=mongodb)
-![Java](https://img.shields.io/badge/Java-8-orange?logo=openjdk)
+![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
 
 A **privacy-focused diary application** built with **Spring Boot** and **MongoDB Atlas**, where users can securely manage their personal diary entries.  
 
@@ -46,7 +46,7 @@ The application follows **MVC (Model-View-Controller)** design principles:
 
 ## 🛠️ Tech Stack  
 
-- **Backend**: Java 8, Spring Boot 2.7.16  
+- **Backend**: Java 21, Spring Boot 4.1.0
 - **Security**: Spring Security (Basic Authentication, Role-based Access Control)  
 - **Database**: MongoDB Atlas  
 - **Testing**: JUnit 5, Mockito, JaCoCo, SonarQube  
@@ -95,7 +95,7 @@ Authenticated users can manage their diary entries.
 ## ⚙️ Getting Started  
 
 ### Prerequisites  
-- Java 8+  
+- Java 21+ 
 - Maven  
 - MongoDB Atlas account  
 - (Optional) SonarQube setup  
@@ -124,7 +124,6 @@ spring:
 ## 📈 Future Improvements  
 
 - 🌐 Frontend with **React + Material UI** (calendar view, image uploads)  
-- 🔑 JWT-based authentication instead of Basic Auth  
 - ☁️ Dockerize for cloud deployment  
 - 🔒 End-to-end encryption for sensitive diary entries  
 - 📱 Mobile app (React Native / Flutter) support  
