@@ -8,7 +8,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+//import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +24,10 @@ public class DiaryEntryService {
     @Autowired
     private UserService userService;
 
-    @Transactional
+    // TODO: re-enable after Postgres migration (JPA transactions work fine on
+    // single-node Postgres — this only broke on standalone MongoDB, which
+    // requires a replica set for multi-document transactions)
+    // @Transactional
     public void saveEntry(DiaryEntry diaryEntry, String userName){
           try {
               User user = userService.findByUserName(userName);
@@ -49,7 +52,8 @@ public class DiaryEntryService {
         return diaryEntryRepository.findById(id);
     }
 
-    @Transactional
+    // TODO: re-enable after Postgres migration (see note above)
+  //  @Transactional
     public boolean deleteById(ObjectId id, String userName){
         boolean removed = false;
         try{

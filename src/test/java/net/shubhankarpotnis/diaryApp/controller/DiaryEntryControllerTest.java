@@ -9,14 +9,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import java.util.Collections;
-
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -27,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BASE_URL = http://localhost:8085  +  /diary (context)  +  /diary (controller mapping)
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@AutoConfigureTestRestTemplate
 @ActiveProfiles("test")
 class DiaryEntryControllerTest {
 
@@ -75,6 +75,9 @@ class DiaryEntryControllerTest {
         ResponseEntity<DiaryEntry> response = restTemplate.postForEntity(
                 BASE_URL, new HttpEntity<>(entry, headers), DiaryEntry.class);
 
+        System.out.println("CREATE1 STATUS: " + response.getStatusCode());
+        System.out.println("CREATE1 BODY: " + response.getBody());
+
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getTitle()).isEqualTo("My First Entry");
@@ -93,6 +96,9 @@ class DiaryEntryControllerTest {
 
         ResponseEntity<DiaryEntry> response = restTemplate.postForEntity(
                 BASE_URL, new HttpEntity<>(entry, headers), DiaryEntry.class);
+
+        System.out.println("CREATE2 STATUS: " + response.getStatusCode());
+        System.out.println("CREATE2 BODY: " + response.getBody());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
@@ -187,6 +193,9 @@ class DiaryEntryControllerTest {
                 BASE_URL + "/id/" + entry.getId().toHexString(),
                 HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
 
+        System.out.println("DELETE1 STATUS: " + response.getStatusCode());
+        System.out.println("DELETE1 BODY: " + response.getBody());
+
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         // Verify it's actually gone from MongoDB
         assertThat(mongoTemplate.findAll(DiaryEntry.class)).isEmpty();
@@ -199,6 +208,9 @@ class DiaryEntryControllerTest {
         ResponseEntity<Void> response = restTemplate.exchange(
                 BASE_URL + "/id/" + fakeId.toHexString(),
                 HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
+
+        System.out.println("DELETE2 STATUS: " + response.getStatusCode());
+        System.out.println("DELETE2 BODY: " + response.getBody());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }

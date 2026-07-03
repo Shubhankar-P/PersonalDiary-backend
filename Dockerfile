@@ -1,5 +1,5 @@
 # ---------- build stage ----------
-FROM maven:3.9.9-eclipse-temurin-17 AS builder
+FROM maven:3.9.9-eclipse-temurin-21 AS builder
 WORKDIR /usr/src/app
 
 # Copy pom.xml first (so dependencies can be cached)
@@ -14,7 +14,7 @@ COPY src/main/resources/application.yml.example src/main/resources/application.y
 RUN mvn -B package -DskipTests && cp target/*.jar app.jar
 
 # ---------- runtime stage ----------
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:21-jre
 # Create a non-root user for safety
 RUN addgroup --system appgroup && adduser --system appuser --ingroup appgroup
 WORKDIR /app
