@@ -15,7 +15,6 @@ src/main/resources/application.properties
 .sts4-cache
 *.yml
 !.github/workflows/*.yml
-!src/main/resources/application-test.yml
 *.log
 ### IntelliJ IDEA ###
 .idea
