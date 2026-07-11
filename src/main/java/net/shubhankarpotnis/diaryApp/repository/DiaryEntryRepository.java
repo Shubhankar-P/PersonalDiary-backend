@@ -1,10 +1,8 @@
 package net.shubhankarpotnis.diaryApp.repository;
 
-
 import net.shubhankarpotnis.diaryApp.entity.DiaryEntry;
-import org.bson.types.ObjectId;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface DiaryEntryRepository extends MongoRepository<DiaryEntry, ObjectId> {
+public interface DiaryEntryRepository extends JpaRepository<DiaryEntry, Long> {
 
 }

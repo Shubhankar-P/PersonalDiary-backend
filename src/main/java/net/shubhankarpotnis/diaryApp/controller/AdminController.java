@@ -32,9 +32,9 @@ public class AdminController {
         }
         // Map to DTO — never return passwords
         List<UserResponseDto> response = all.stream().map(u -> new UserResponseDto(
-                u.getId() != null ? u.getId().toHexString() : null,
+                u.getId(),
                 u.getUserName(),
-                u.getRoles(),
+                u.getRole(),
                 u.getDiaryEntries() != null ? u.getDiaryEntries().size() : 0
         )).collect(Collectors.toList());
 

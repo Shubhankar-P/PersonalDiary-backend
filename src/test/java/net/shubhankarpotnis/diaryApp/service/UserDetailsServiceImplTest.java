@@ -34,7 +34,7 @@ class UserDetailsServiceImplTest {
         testUser = new User();
         testUser.setUserName("testUser");
         testUser.setPassword("password");
-        testUser.setRoles(Arrays.asList("USER", "ADMIN"));
+        testUser.setRole("USER");
     }
 
     @Test
@@ -47,8 +47,6 @@ class UserDetailsServiceImplTest {
         assertEquals("password", userDetails.getPassword());
         assertTrue(userDetails.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
-        assertTrue(userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
     }
 
     @Test

@@ -13,12 +13,16 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mongodb:
-        image: mongo:7
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: diary_db
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: diarydb_test
         ports:
-          - 27017:27017
+          - 5432:5432
         options: >-
-          --health-cmd "mongosh --eval 'db.runCommand(\"ping\").ok' --quiet"
+          --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -40,6 +44,35 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+
+      - name: Create test configuration
+        run: |
+          mkdir -p src/main/resources
+          cat > src/main/resources/application-test.yml << 'EOF'
+          spring:
+            datasource:
+              url: jdbc:postgresql://localhost:5432/diarydb_test
+              username: diary_db
+              password: test_password
+            jpa:
+              hibernate:
+                ddl-auto: validate
+              properties:
+                hibernate:
+                  dialect: org.hibernate.dialect.PostgreSQLDialect
+            flyway:
+              enabled: true
+              locations: classpath:db/migration
+
+          server:
+            port: 8085
+            servlet:
+              context-path: /diary
+
+          jwt:
+            secret: dGVzdC1vbmx5LWNpLWp3dC1zZWNyZXQtbm90LWZvci1wcm9kLXVzZQ==
+            access-expiry-ms: 900000
+          EOF
 
       - name: Build with Maven and run tests
         run: mvn clean verify

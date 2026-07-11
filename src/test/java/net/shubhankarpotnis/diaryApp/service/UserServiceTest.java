@@ -2,7 +2,6 @@ package net.shubhankarpotnis.diaryApp.service;
 
 import net.shubhankarpotnis.diaryApp.entity.User;
 import net.shubhankarpotnis.diaryApp.repository.UserRepository;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,7 @@ class UserServiceTest {
 
     private List<User> mockUsers;
     private User testUser;
-    private ObjectId testId;
+    private Long testId;
 
     @BeforeEach
     void setUp() {
@@ -35,7 +34,7 @@ class UserServiceTest {
         testUser = new User();
         testUser.setUserName("testUser");
         testUser.setPassword("plainPassword");
-        ObjectId testId = new ObjectId();
+        testId = 1L;
         testUser.setId(testId);
 
         User user1 = new User();
@@ -60,8 +59,7 @@ class UserServiceTest {
 
         // Assert
         assertNotEquals("plainPassword", testUser.getPassword(), "Password should be encoded");
-        assertEquals(1, testUser.getRoles().size(), "Role list should contain exactly one role");
-        assertTrue(testUser.getRoles().contains("USER"), "Role should be USER");
+        assertEquals("USER", testUser.getRole(), "Role should be USER");
 
         // Verify interaction
         verify(userRepository, times(1)).save(testUser);
@@ -79,8 +77,7 @@ class UserServiceTest {
         // Assert
         assertNotNull(testUser.getPassword(), "Encoded password should not be null");
         assertNotEquals("", testUser.getPassword(), "Encoded password should not remain empty");
-        assertEquals(1, testUser.getRoles().size());
-        assertTrue(testUser.getRoles().contains("USER"));
+        assertEquals("USER", testUser.getRole());
 
         verify(userRepository, times(1)).save(testUser);
     }
@@ -111,9 +108,7 @@ class UserServiceTest {
 
         // Assert
         assertNotEquals("plainPassword", testUser.getPassword(), "Password should be encoded");
-        assertEquals(2, testUser.getRoles().size(), "Roles list should contain exactly two roles");
-        assertTrue(testUser.getRoles().contains("USER"), "Roles should contain USER");
-        assertTrue(testUser.getRoles().contains("ADMIN"), "Roles should contain ADMIN");
+        assertEquals("ADMIN", testUser.getRole(), "Role should be ADMIN");
 
         // Verify interaction
         verify(userRepository, times(1)).save(testUser);

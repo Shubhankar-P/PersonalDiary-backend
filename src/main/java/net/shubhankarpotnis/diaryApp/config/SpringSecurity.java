@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,6 +49,19 @@ public class SpringSecurity {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    // Encodes the "ADMIN implies USER" relationship we designed at the DB level
+    // (single role column instead of separate role grants). With this bean,
+    // any future .hasRole("USER") / @PreAuthorize("hasRole('USER')") check
+    // automatically also passes for users whose role is ADMIN, without
+    // needing to write ADMIN-or-USER conditionals anywhere in the app code.
+    // No current endpoint strictly requires this yet (only /admin/** uses
+    // hasRole, everything else just needs .authenticated()), but it's the
+    // correct place for this rule to live once you add USER-only checks.
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.fromHierarchy("ROLE_ADMIN > ROLE_USER");
     }
 
     @Bean

@@ -5,10 +5,10 @@
 ![Quality Gate](https://img.shields.io/badge/sonarqube-passed-success)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 ![Spring Boot](https://img.shields.io/badge/SpringBoot-4.1.0-green?logo=springboot)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-success?logo=mongodb)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)
 ![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
 
-A **privacy-focused diary application** built with **Spring Boot** and **MongoDB Atlas**, where users can securely manage their personal diary entries.  
+A **privacy-focused diary application** built with **Spring Boot** and **PostgreSQL**, where users can securely manage their personal diary entries.
 
 This project demonstrates industry-standard practices such as **RESTful API design, MVC architecture, authentication & authorization, unit testing, code quality monitoring, and CI-friendly tools**.  
 
@@ -20,8 +20,8 @@ This project demonstrates industry-standard practices such as **RESTful API desi
 - 🔐 **User Authentication** – Secure login with Spring Security + Basic Authentication.  
 - 👥 **Role-based Authorization** –  
   - `USER`: Manage only their own diary entries.  
-  - `ADMIN`: View and manage all users & their diary entries.  
-- 📂 **MongoDB Atlas Integration** – Cloud-based NoSQL database for scalability.  
+  - `ADMIN`: View and manage all users & their diary entries.
+- 📂 **PostgreSQL + Flyway** – Relational database with version-controlled schema migrations. 
 - ⚡ **RESTful APIs** – Clean API design with separation of concerns (Controller → Service → Repository).  
 - 🛠 **Lombok Integration** – Boilerplate reduction for getters, setters, and constructors.  
 - ✅ **Unit & Integration Testing** – JUnit 5 + Mockito for service and repository layers.  
@@ -38,7 +38,7 @@ The application follows **MVC (Model-View-Controller)** design principles:
 
 - **Controller** – Handles incoming API requests.  
 - **Service** – Business logic layer.  
-- **Repository** – Interacts with MongoDB Atlas.  
+- **Repository** – Interacts with PostgreSQL via Spring Data JPA.
 - **Entity** – Represents data models (`User`, `DiaryEntry`).  
 
 
@@ -48,7 +48,7 @@ The application follows **MVC (Model-View-Controller)** design principles:
 
 - **Backend**: Java 21, Spring Boot 4.1.0
 - **Security**: Spring Security (Basic Authentication, Role-based Access Control)  
-- **Database**: MongoDB Atlas  
+- **Database**: PostgreSQL, Flyway (schema migrations) 
 - **Testing**: JUnit 5, Mockito, JaCoCo, SonarQube  
 - **Build Tool**: Maven  
 - **Other Tools**: Lombok, Git/GitHub for version control  
@@ -59,7 +59,8 @@ The application follows **MVC (Model-View-Controller)** design principles:
 
 ### 🔓 Public APIs  
 Accessible without authentication.  
-- `POST /public/create-user` → Register a new user  
+- `POST /public/signup` → Register a new user
+- `POST /public/login` → Log in and receive a JWT 
 - `GET /public/health-check` → Health check endpoint  
 
 ### 👤 User APIs  
@@ -72,14 +73,15 @@ Require authentication. Regular users can only access their own data.
 Restricted to admin role.  
 - `POST /admin/create-admin-user` → Register a new admin user  
 - `GET /admin/all-users` → Get all registered users  
+- `GET /admin/clear-app-cache` → Refresh the in-memory config cache
 
 ### 📖 Diary Entry APIs  
 Authenticated users can manage their diary entries.  
 - `POST /diary` → Create a diary entry  
 - `GET /diary` → Get all diary entries of logged-in user  
-- `GET /diary/{id}` → Get a specific diary entry  
-- `PUT /diary/{id}` → Update a diary entry  
-- `DELETE /diary/{id}` → Delete a diary entry  
+- `GET /diary/id/{id}` → Get a specific diary entry
+- `PUT /diary/id/{id}` → Update a diary entry
+- `DELETE /diary/id/{id}` → Delete a diary entry
 
 
 ---
@@ -97,7 +99,7 @@ Authenticated users can manage their diary entries.
 ### Prerequisites  
 - Java 21+ 
 - Maven  
-- MongoDB Atlas account  
+- PostgreSQL 16+ (running locally, or a hosted instance for production) 
 - (Optional) SonarQube setup  
 
 ### Installation  
@@ -112,17 +114,23 @@ mvn clean install
 # Run application
 mvn spring-boot:run
 ```
+<!-- after -->
 ### Configuration
 ```bash
-#Update your application.yml with your MongoDB Atlas credentials:
+# Update your application-dev.yml (or set as environment variables) with your local PostgreSQL credentials:
 
 spring:
-  data:
-    mongodb:
-      uri: mongodb+srv://<username>:<password>@cluster0.mongodb.net/diarydb
+datasource:
+url: jdbc:postgresql://localhost:5432/diarydb
+username: diary_db
+password: ${DB_PASSWORD_DEV}
 ```
+Flyway automatically creates the schema on first run — no manual table setup needed once the database itself exists.
+
 ## 📈 Future Improvements  
 
+- ~~JWT auth instead of basic auth~~ ✅ Completed
+- 🐘 ~~Migrate from MongoDB to PostgreSQL for relational data integrity~~ ✅ Completed
 - 🌐 Frontend with **React + Material UI** (calendar view, image uploads)  
 - ☁️ Dockerize for cloud deployment  
 - 🔒 End-to-end encryption for sensitive diary entries  

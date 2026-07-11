@@ -3,7 +3,6 @@ package net.shubhankarpotnis.diaryApp.controller;
 import net.shubhankarpotnis.diaryApp.cache.AppCache;
 import net.shubhankarpotnis.diaryApp.entity.User;
 import net.shubhankarpotnis.diaryApp.service.UserService;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,8 +38,8 @@ class AdminControllerTest {
         testUser = new User();
         testUser.setUserName("adminUser");
         testUser.setPassword("encodedPassword");
-        testUser.setId(new ObjectId());
-        testUser.setRoles(Arrays.asList("USER", "ADMIN"));
+        testUser.setId(1L);
+        testUser.setRole("ADMIN");
     }
 
     // ---- getAllUsers ----
@@ -84,12 +83,12 @@ class AdminControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
-    @Test  // User with null id — toHexString guard in controller
+    @Test  // User with null id — Long serializes as null with no special handling needed
     void getAllUsers_WhenUserHasNullId_ShouldStillReturnOkWithNullIdInDto() {
         User noIdUser = new User();
         noIdUser.setUserName("noIdUser");
         noIdUser.setPassword("pass");
-        noIdUser.setRoles(Collections.singletonList("USER"));
+        noIdUser.setRole("USER");
         // id is null — controller checks: u.getId() != null ? u.getId().toHexString() : null
         when(userService.getAllUsers()).thenReturn(Collections.singletonList(noIdUser));
 

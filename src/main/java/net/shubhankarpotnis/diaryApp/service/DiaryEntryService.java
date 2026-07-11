@@ -4,14 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.shubhankarpotnis.diaryApp.entity.DiaryEntry;
 import net.shubhankarpotnis.diaryApp.entity.User;
 import net.shubhankarpotnis.diaryApp.repository.DiaryEntryRepository;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-//import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -24,50 +21,50 @@ public class DiaryEntryService {
     @Autowired
     private UserService userService;
 
-    // TODO: re-enable after Postgres migration (JPA transactions work fine on
-    // single-node Postgres — this only broke on standalone MongoDB, which
-    // requires a replica set for multi-document transactions)
-    // @Transactional
+    // Re-enabled: JPA transactions work fine on single-node Postgres. This only
+    // broke on standalone MongoDB, which requires a replica set for
+    // multi-document transactions.
+    @Transactional
     public void saveEntry(DiaryEntry diaryEntry, String userName){
-          try {
-              User user = userService.findByUserName(userName);
-              diaryEntry.setDate(LocalDateTime.now());
-              DiaryEntry saved = diaryEntryRepository.save(diaryEntry);
-              user.getDiaryEntries().add(saved);
-              userService.saveUser(user);
-          } catch (Exception e){
-              log.error("Exception ", e);
-          }
+        try {
+            User user = userService.findByUserName(userName);
+            // The entry now owns the foreign key (user_id) directly, so we set
+            // the owning side and save the entry itself. We no longer need to
+            // touch/save the User at all -- that was only necessary under the
+            // old @DBRef model where the User document held the array of
+            // entry references.
+            diaryEntry.setUser(user);
+            diaryEntry.setDate(LocalDateTime.now());
+            diaryEntryRepository.save(diaryEntry);
+        } catch (Exception e){
+            log.error("Exception ", e);
+        }
     }
 
     public void saveEntry(DiaryEntry diaryEntry){
         diaryEntryRepository.save(diaryEntry);
     }
 
-//    public List<DiaryEntry> getAllDiaryEntries(){
-//        return diaryEntryRepository.findAll();
-//    }
-
-    public Optional<DiaryEntry> findById(ObjectId id){
+    public Optional<DiaryEntry> findById(Long id){
         return diaryEntryRepository.findById(id);
     }
 
-    // TODO: re-enable after Postgres migration (see note above)
-  //  @Transactional
-    public boolean deleteById(ObjectId id, String userName){
-        boolean removed = false;
-        try{
+    @Transactional
+    public boolean deleteById(Long id, String userName){
+        try {
             User user = userService.findByUserName(userName);
-             removed = user.getDiaryEntries().removeIf(x -> x.getId().equals(id));
-            if(removed) {
-                userService.saveUser(user);
+            Optional<DiaryEntry> entryOpt = diaryEntryRepository.findById(id);
+            // Ownership check: confirm this entry actually belongs to the
+            // authenticated user before deleting -- otherwise any logged-in
+            // user could delete any entry by guessing an id.
+            if (entryOpt.isPresent() && entryOpt.get().getUser().getId().equals(user.getId())) {
                 diaryEntryRepository.deleteById(id);
+                return true;
             }
-        }
-        catch(Exception e){
+            return false;
+        } catch (Exception e){
             throw new RuntimeException("An error occurred while deleting the entry.", e);
         }
-        return removed;
     }
 
 }

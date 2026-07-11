@@ -1,23 +1,21 @@
 package net.shubhankarpotnis.diaryApp.dto;
 
-import java.util.List;
-
 public class UserResponseDto {
 
-    private String id;
+    private Long id;
     private String userName;
-    private List<String> roles;
+    private String role;
     private int entryCount;
 
-    public UserResponseDto(String id, String userName, List<String> roles, int entryCount) {
+    public UserResponseDto(Long id, String userName, String role, int entryCount) {
         this.id = id;
         this.userName = userName;
-        this.roles = roles;
+        this.role = role;
         this.entryCount = entryCount;
     }
 
-    public String getId()          { return id; }
-    public String getUserName()    { return userName; }
-    public List<String> getRoles() { return roles; }
-    public int getEntryCount()     { return entryCount; }
+    public Long getId()       { return id; }
+    public String getUserName() { return userName; }
+    public String getRole()     { return role; }
+    public int getEntryCount()  { return entryCount; }
 }

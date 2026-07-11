@@ -2,18 +2,16 @@ package net.shubhankarpotnis.diaryApp.controller;
 
 import net.shubhankarpotnis.diaryApp.entity.DiaryEntry;
 import net.shubhankarpotnis.diaryApp.entity.User;
+import net.shubhankarpotnis.diaryApp.repository.DiaryEntryRepository;
 import net.shubhankarpotnis.diaryApp.repository.UserRepository;
 import net.shubhankarpotnis.diaryApp.utilis.JwtUtil;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.resttestclient.TestRestTemplate;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
-import java.util.Collections;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,8 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Integration tests for DiaryEntryController.
  *
- * Uses the "test" Spring profile (application-test.yml) which points to the real
- * test MongoDB and runs on port 8085 with context-path /diary.
+ * Uses the "test" Spring profile (application-test.yml), which points to a
+ * local Postgres database (diarydb_test) and runs on port 8085 with
+ * context-path /diary.
  * BASE_URL = http://localhost:8085  +  /diary (context)  +  /diary (controller mapping)
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -36,7 +35,7 @@ class DiaryEntryControllerTest {
     private TestRestTemplate restTemplate;
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private DiaryEntryRepository diaryEntryRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -49,13 +48,15 @@ class DiaryEntryControllerTest {
 
     @BeforeEach
     void setUp() {
-        mongoTemplate.dropCollection(DiaryEntry.class);
-        mongoTemplate.dropCollection(User.class);
+        // Deletion order matters: diary_entries has a foreign key to users,
+        // so entries must go first or the FK constraint rejects the delete.
+        diaryEntryRepository.deleteAll();
+        userRepository.deleteAll();
 
         testUser = new User();
         testUser.setUserName("testuser");
         testUser.setPassword("password");
-        testUser.setRoles(Collections.singletonList("USER")); // ADD THIS LINE
+        testUser.setRole("USER");
         testUser = userRepository.save(testUser);
 
         String token = jwtUtil.generateToken(testUser.getUserName());
@@ -75,40 +76,35 @@ class DiaryEntryControllerTest {
         ResponseEntity<DiaryEntry> response = restTemplate.postForEntity(
                 BASE_URL, new HttpEntity<>(entry, headers), DiaryEntry.class);
 
-        System.out.println("CREATE1 STATUS: " + response.getStatusCode());
-        System.out.println("CREATE1 BODY: " + response.getBody());
-
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().getTitle()).isEqualTo("My First Entry");
 
-        // Verify persistence in MongoDB
-        List<DiaryEntry> saved = mongoTemplate.findAll(DiaryEntry.class);
+        // Verify persistence in Postgres
+        List<DiaryEntry> saved = diaryEntryRepository.findAll();
         assertThat(saved).hasSize(1);
         assertThat(saved.get(0).getTitle()).isEqualTo("My First Entry");
     }
 
-    @Test  // B. Edge Case: title only (content is optional)
-    void createDiaryEntry_WhenContentIsMissing_ShouldReturnCreated() {
+    @Test  // B. Edge Case: title omitted (title is optional now, content is required)
+    void createDiaryEntry_WhenTitleIsMissing_ShouldReturnCreated() {
         DiaryEntry entry = new DiaryEntry();
-        entry.setTitle("Title Only");
-        // content intentionally omitted — it's not @NotBlank
+        entry.setContent("Content Only");
+        // title intentionally omitted -- it's not @NotBlank anymore
 
         ResponseEntity<DiaryEntry> response = restTemplate.postForEntity(
                 BASE_URL, new HttpEntity<>(entry, headers), DiaryEntry.class);
 
-        System.out.println("CREATE2 STATUS: " + response.getStatusCode());
-        System.out.println("CREATE2 BODY: " + response.getBody());
-
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getTitle()).isEqualTo("Title Only");
+        assertThat(response.getBody().getContent()).isEqualTo("Content Only");
     }
 
-    @Test  // C. Error Case: missing title — @NotBlank on DiaryEntry.title must reject this
-    void createDiaryEntry_WhenTitleIsBlank_ShouldReturnBadRequest() {
+    @Test  // C. Error Case: missing content -- @NotBlank on DiaryEntry.content must reject this
+    void createDiaryEntry_WhenContentIsBlank_ShouldReturnBadRequest() {
         DiaryEntry entry = new DiaryEntry();
-        entry.setTitle("");  // @NotBlank violation
+        entry.setTitle("Has a title, no content");
+        entry.setContent("");  // @NotBlank violation
 
         ResponseEntity<String> response = restTemplate.postForEntity(
                 BASE_URL, new HttpEntity<>(entry, headers), String.class);
@@ -120,14 +116,11 @@ class DiaryEntryControllerTest {
 
     @Test  // A. Happy Path: user has entries
     void getAllDiaryEntries_WhenUserHasEntries_ShouldReturnOkWithList() {
-        // Persist a diary entry and link it to the test user
         DiaryEntry entry = new DiaryEntry();
         entry.setTitle("Entry 1");
         entry.setContent("Content 1");
-        mongoTemplate.save(entry);
-
-        testUser.getDiaryEntries().add(entry);
-        userRepository.save(testUser);
+        entry.setUser(testUser);
+        diaryEntryRepository.save(entry);
 
         ResponseEntity<DiaryEntry[]> response = restTemplate.exchange(
                 BASE_URL, HttpMethod.GET,
@@ -141,7 +134,7 @@ class DiaryEntryControllerTest {
 
     @Test  // B. Edge Case: user has no entries yet
     void getAllDiaryEntries_WhenUserHasNoEntries_ShouldReturnNotFound() {
-        // testUser was saved in @BeforeEach with an empty diary list
+        // testUser was saved in @BeforeEach with no entries
         ResponseEntity<Void> response = restTemplate.exchange(
                 BASE_URL, HttpMethod.GET,
                 new HttpEntity<>(headers), Void.class);
@@ -155,12 +148,12 @@ class DiaryEntryControllerTest {
     void getDiaryEntryById_WhenEntryBelongsToUser_ShouldReturnOk() {
         DiaryEntry entry = new DiaryEntry();
         entry.setTitle("Owned Entry");
-        mongoTemplate.save(entry);
-        testUser.getDiaryEntries().add(entry);
-        userRepository.save(testUser);
+        entry.setContent("Owned Content");
+        entry.setUser(testUser);
+        entry = diaryEntryRepository.save(entry);
 
         ResponseEntity<DiaryEntry> response = restTemplate.exchange(
-                BASE_URL + "/id/" + entry.getId().toHexString(),
+                BASE_URL + "/id/" + entry.getId(),
                 HttpMethod.GET, new HttpEntity<>(headers), DiaryEntry.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -170,10 +163,10 @@ class DiaryEntryControllerTest {
 
     @Test  // C. Error Case: entry ID does not exist
     void getDiaryEntryById_WhenEntryDoesNotExist_ShouldReturnNotFound() {
-        ObjectId fakeId = new ObjectId();
+        Long fakeId = 999999L;
 
         ResponseEntity<Void> response = restTemplate.exchange(
-                BASE_URL + "/id/" + fakeId.toHexString(),
+                BASE_URL + "/id/" + fakeId,
                 HttpMethod.GET, new HttpEntity<>(headers), Void.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
@@ -185,32 +178,25 @@ class DiaryEntryControllerTest {
     void deleteDiaryEntryById_WhenEntryExists_ShouldReturnNoContent() {
         DiaryEntry entry = new DiaryEntry();
         entry.setTitle("To Delete");
-        mongoTemplate.save(entry);
-        testUser.getDiaryEntries().add(entry);
-        userRepository.save(testUser);
+        entry.setContent("Delete Me");
+        entry.setUser(testUser);
+        entry = diaryEntryRepository.save(entry);
 
         ResponseEntity<Void> response = restTemplate.exchange(
-                BASE_URL + "/id/" + entry.getId().toHexString(),
+                BASE_URL + "/id/" + entry.getId(),
                 HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
 
-        System.out.println("DELETE1 STATUS: " + response.getStatusCode());
-        System.out.println("DELETE1 BODY: " + response.getBody());
-
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        // Verify it's actually gone from MongoDB
-        assertThat(mongoTemplate.findAll(DiaryEntry.class)).isEmpty();
+        assertThat(diaryEntryRepository.findAll()).isEmpty();
     }
 
     @Test  // C. Error Case: entry ID does not exist
     void deleteDiaryEntryById_WhenEntryDoesNotExist_ShouldReturnNotFound() {
-        ObjectId fakeId = new ObjectId();
+        Long fakeId = 999999L;
 
         ResponseEntity<Void> response = restTemplate.exchange(
-                BASE_URL + "/id/" + fakeId.toHexString(),
+                BASE_URL + "/id/" + fakeId,
                 HttpMethod.DELETE, new HttpEntity<>(headers), Void.class);
-
-        System.out.println("DELETE2 STATUS: " + response.getStatusCode());
-        System.out.println("DELETE2 BODY: " + response.getBody());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
@@ -222,16 +208,15 @@ class DiaryEntryControllerTest {
         DiaryEntry entry = new DiaryEntry();
         entry.setTitle("Original Title");
         entry.setContent("Original Content");
-        mongoTemplate.save(entry);
-        testUser.getDiaryEntries().add(entry);
-        userRepository.save(testUser);
+        entry.setUser(testUser);
+        entry = diaryEntryRepository.save(entry);
 
         DiaryEntry update = new DiaryEntry();
         update.setTitle("Updated Title");
         update.setContent("Updated Content");
 
         ResponseEntity<DiaryEntry> response = restTemplate.exchange(
-                BASE_URL + "/id/" + entry.getId().toHexString(),
+                BASE_URL + "/id/" + entry.getId(),
                 HttpMethod.PUT,
                 new HttpEntity<>(update, headers),
                 DiaryEntry.class);
@@ -244,12 +229,12 @@ class DiaryEntryControllerTest {
 
     @Test  // C. Error Case: entry to update does not exist
     void updateDiaryById_WhenEntryDoesNotExist_ShouldReturnNotFound() {
-        ObjectId fakeId = new ObjectId();
+        Long fakeId = 999999L;
         DiaryEntry update = new DiaryEntry();
-        update.setTitle("Updated Title");
+        update.setContent("Updated Content");
 
         ResponseEntity<Void> response = restTemplate.exchange(
-                BASE_URL + "/id/" + fakeId.toHexString(),
+                BASE_URL + "/id/" + fakeId,
                 HttpMethod.PUT,
                 new HttpEntity<>(update, headers),
                 Void.class);
