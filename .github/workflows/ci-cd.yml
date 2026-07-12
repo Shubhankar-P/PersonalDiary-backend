@@ -72,10 +72,6 @@ jobs:
           jwt:
             secret: dGVzdC1vbmx5LWNpLWp3dC1zZWNyZXQtbm90LWZvci1wcm9kLXVzZQ==
             access-expiry-ms: 900000
-          
-          logging:
-            level:
-              org.flywaydb: DEBUG
           EOF
 
       - name: Build with Maven and run tests
