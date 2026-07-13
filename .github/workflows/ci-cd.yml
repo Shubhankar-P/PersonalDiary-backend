@@ -14,7 +14,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:18
         env:
           POSTGRES_USER: diary_db
           POSTGRES_PASSWORD: test_password

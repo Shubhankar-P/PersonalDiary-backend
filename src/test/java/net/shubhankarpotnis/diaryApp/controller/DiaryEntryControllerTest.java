@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
+import java.time.LocalDateTime;
 
 /**
  * Integration tests for DiaryEntryController.
@@ -120,6 +121,7 @@ class DiaryEntryControllerTest {
         entry.setTitle("Entry 1");
         entry.setContent("Content 1");
         entry.setUser(testUser);
+        entry.setDate(LocalDateTime.now());
         diaryEntryRepository.save(entry);
 
         ResponseEntity<DiaryEntry[]> response = restTemplate.exchange(
@@ -150,6 +152,7 @@ class DiaryEntryControllerTest {
         entry.setTitle("Owned Entry");
         entry.setContent("Owned Content");
         entry.setUser(testUser);
+        entry.setDate(LocalDateTime.now());
         entry = diaryEntryRepository.save(entry);
 
         ResponseEntity<DiaryEntry> response = restTemplate.exchange(
@@ -180,6 +183,7 @@ class DiaryEntryControllerTest {
         entry.setTitle("To Delete");
         entry.setContent("Delete Me");
         entry.setUser(testUser);
+        entry.setDate(LocalDateTime.now());
         entry = diaryEntryRepository.save(entry);
 
         ResponseEntity<Void> response = restTemplate.exchange(
@@ -209,6 +213,7 @@ class DiaryEntryControllerTest {
         entry.setTitle("Original Title");
         entry.setContent("Original Content");
         entry.setUser(testUser);
+        entry.setDate(LocalDateTime.now());
         entry = diaryEntryRepository.save(entry);
 
         DiaryEntry update = new DiaryEntry();
