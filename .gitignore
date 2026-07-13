@@ -1,37 +1,47 @@
 HELP.md
+
+# Maven
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-src/main/resources/application.properties
 
-### STS ###
+# Local secrets (optional)
+.env
+.env.*
+
+# Eclipse / STS
 .apt_generated
 .classpath
 .factorypath
 .project
-.settings
+.settings/
 .springBeans
 .sts4-cache
-*.yml
-!.github/workflows/*.yml
-*.log
-### IntelliJ IDEA ###
-.idea
-*.iws
+
+# IntelliJ IDEA
+.idea/
 *.iml
 *.ipr
-/htmlReport
-### NetBeans ###
+*.iws
+
+# VS Code
+.vscode/
+
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
+
+# Gradle
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+# Logs
+*.log
 
+# Reports
+/htmlReport
