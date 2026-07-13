@@ -5,7 +5,7 @@
 ![Quality Gate](https://img.shields.io/badge/sonarqube-passed-success)
 ![License](https://img.shields.io/badge/license-MIT-yellow)
 ![Spring Boot](https://img.shields.io/badge/SpringBoot-4.1.0-green?logo=springboot)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue?logo=postgresql)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-blue?logo=postgresql)
 ![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk)
 
 A **privacy-focused diary application** built with **Spring Boot** and **PostgreSQL**, where users can securely manage their personal diary entries.
@@ -99,7 +99,7 @@ Authenticated users can manage their diary entries.
 ### Prerequisites  
 - Java 21+ 
 - Maven  
-- PostgreSQL 16+ (running locally, or a hosted instance for production) 
+- PostgreSQL 18+ (running locally, or a hosted instance for production) 
 - (Optional) SonarQube setup  
 
 ### Installation  
